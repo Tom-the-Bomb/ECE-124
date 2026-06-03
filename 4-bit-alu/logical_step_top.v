@@ -1,4 +1,4 @@
-module LogicalStep_Lab2_top (
+module logical_step_top (
     input            rst_n,      // reset in
     input            clkin_50,   // clock in
     input      [7:0] sw,
@@ -23,19 +23,19 @@ module LogicalStep_Lab2_top (
 
     // module instantiations
     full_adder_4bit u6 (
-        .bus0      (hex_A),
-        .bus1      (hex_B),
-        .cin       (1'b0),
+        .input_A   (hex_A),
+        .input_B   (hex_B),
+        .carry_in  (1'b0),
         .hex_sum   (hex_sum),
         .carry_out (carry)
     );
 
-    SevenSegment u1 (
+    seven_segment u1 (
         .hex      (hex_sum),
         .sevenseg (seg7_A)
     );
 
-    SevenSegment u2 (
+    seven_segment u2 (
         .hex      ({3'b000, carry}),
         .sevenseg (seg7_B)
     );
@@ -55,10 +55,10 @@ module LogicalStep_Lab2_top (
     );
 
     logic_proc u5 (
-        .logic_in0 (hex_A),
-        .logic_in1 (hex_B),
-        .select    (pb[1:0]),
-        .logic_out (leds[3:0])
+        .logic_in_A (hex_A),
+        .logic_in_B (hex_B),
+        .select     (pb[1:0]),
+        .logic_out  (leds[3:0])
     );
 
 endmodule

@@ -1,4 +1,4 @@
-module SevenSegment (
+module seven_segment (
     input  [3:0] hex,        // the 4-bit data to be displayed
     output [6:0] sevenseg    // 7-bit output to a 7-segment display
 );
