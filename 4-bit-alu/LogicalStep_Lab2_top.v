@@ -1,4 +1,4 @@
-module logical_step_top (
+module LogicalStep_Lab2_top (
     input            rst_n,      // reset in
     input            clkin_50,   // clock in
     input      [7:0] sw,
@@ -16,8 +16,9 @@ module logical_step_top (
     wire [3:0] pb;
     wire [3:0] hex_sum;
     wire       carry;
+    wire [3:0] disp_A, disp_B;   // values fed to the two 7-seg decoders
 
-    // wire assignments
+    // split the 8 switches into two 4-bit operands
     assign hex_A = sw[3:0];
     assign hex_B = sw[7:4];
 
@@ -30,13 +31,28 @@ module logical_step_top (
         .carry_out (carry)
     );
 
+    // display mux network: pb[2] = 0 shows the operands, pb[2] = 1 shows the adder result
+    mux_4bit_2_to_1 u7 (
+        .din_A    (hex_A),            // pb[2] = 0 -> operand A on DIGIT2
+        .din_B    (hex_sum),          // pb[2] = 1 -> SUM on DIGIT2
+        .selector (pb[2]),
+        .dout     (disp_A)
+    );
+
+    mux_4bit_2_to_1 u8 (
+        .din_A    (hex_B),            // pb[2] = 0 -> operand B on DIGIT1
+        .din_B    ({3'b000, carry}),  // pb[2]=1 -> carry padded to 4 bits (match decoder width), shows 0/1 on DIGIT1
+        .selector (pb[2]),
+        .dout     (disp_B)
+    );
+
     seven_segment u1 (
-        .hex      (hex_sum),
+        .hex      (disp_A),
         .sevenseg (seg7_A)
     );
 
     seven_segment u2 (
-        .hex      ({3'b000, carry}),
+        .hex      (disp_B),
         .sevenseg (seg7_B)
     );
 
@@ -49,6 +65,7 @@ module logical_step_top (
         .dig1 (seg7_char1)
     );
 
+    // buttons are active-low (pressed = 0); invert to active-high so pressed = 1 for the selects
     pb_inverters u4 (
         .pbin  (pb_n),
         .pbout (pb)

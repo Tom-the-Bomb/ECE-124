@@ -17,8 +17,8 @@ module seven_segment (
     //         |            |
     //         +---- d -----+
     //
-    //                                 hex bits      sevenseg
-    //                                  3210          GFEDCBA
+    //                       hex bits      sevenseg
+    //                           3210       GFEDCBA
     assign sevenseg = (hex == 4'b0000) ? 7'b0111111 :
                       (hex == 4'b0001) ? 7'b0000110 :
                       (hex == 4'b0010) ? 7'b1011011 :

@@ -6,7 +6,7 @@ module full_adder_4bit (
     output       carry_out
 );
 
-    wire carry_out0, carry_out1, carry_out2;
+    wire carry_out0, carry_out1, carry_out2;  // carries rippling from each stage to the next
 
     // bit 0 (LSB)
     full_adder_1bit fa0 (

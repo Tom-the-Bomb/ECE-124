@@ -18,8 +18,9 @@ module segment7_mux (
         count <= count + 1;
     end
 
-    assign toggle = count[10];
+    assign toggle = count[10];   // ~24 kHz digit-select toggle @ 50 MHz
 
+    // light one digit at a time, in step with toggle
     assign dig1 = ~toggle;
     assign dig2 =  toggle;
 
@@ -31,7 +32,7 @@ module segment7_mux (
     assign dout_mux[5] = (toggle == 1'b1) ? din2[5] : din1[5];
     assign dout_mux[6] = (toggle == 1'b1) ? din2[6] : din1[6];
 
-    // incorporate TRISTATE levels for specific output pins (for LogicalStep PCB design)
+    // LogicalStep PCB: bits 1/5/6 are open-drain -> ON = high-Z (board pull-up), not a driven 1
     assign dout_temp[0] = (dout_mux[0] == 1'b1) ? 1'b1 : 1'b0;
     assign dout_temp[1] = (dout_mux[1] == 1'b1) ? 1'bz : 1'b0; // open drain
     assign dout_temp[2] = (dout_mux[2] == 1'b1) ? 1'b1 : 1'b0;
