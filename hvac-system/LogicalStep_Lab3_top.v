@@ -58,12 +58,12 @@ module LogicalStep_Lab3_top (
     );
 
     // Comparator: mux_temp (A) vs current_temp (B)
-    Compx4 U3 (
-        .hex_A   (mux_temp),
-        .hex_B   (current_temp),
-        .out_aeqb(aeqb),
-        .out_agtb(agtb),
-        .out_altb(altb)
+    comp4x U3 (
+        .hex_A (mux_temp),
+        .hex_B (current_temp),
+        .A_eq_B(aeqb),
+        .A_gt_B(agtb),
+        .A_lt_B(altb)
     );
 
     // Comparator self-test (enabled by pb[2]); result -> leds[7]
@@ -100,9 +100,9 @@ module LogicalStep_Lab3_top (
         .i1eqi2(aeqb), .i1gti2(agtb), .i1lti2(altb),
 
         .furnace_on(leds[0]), .at_temp(leds[1]), .ac_on(leds[2]), .blower_on(leds[3]),
-        .window_open_led(leds[4]), .door_open_led(leds[5]), .vacation_led(leds[6]),
+        .window_open_led(leds[4]), .door_open_led(leds[5]), .Vacation_led(leds[6]),
 
-        .hvac_run(run), .hvac_increase(increase), .hvac_decrease(decrease)
+        .HVAC_run(run), .HVAC_increase(increase), .HVAC_decrease(decrease)
     );
 
 endmodule

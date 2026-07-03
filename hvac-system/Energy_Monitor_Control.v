@@ -7,8 +7,8 @@ module Energy_Monitor_Control (
     input  i1eqi2, i1gti2, i1lti2,
 
     output blower_on, ac_on, furnace_on, at_temp,
-    output hvac_run, hvac_increase, hvac_decrease,
-    output vacation_led, door_open_led, window_open_led
+    output HVAC_run, HVAC_increase, HVAC_decrease,
+    output Vacation_led, door_open_led, window_open_led
 );
     assign furnace_on = i1gti2;  // leds[0], target above current -> heating
     assign at_temp    = i1eqi2;  // leds[1], target == current
@@ -19,10 +19,10 @@ module Energy_Monitor_Control (
 
     assign window_open_led = window_open;  // leds[4] <- pb[1]
     assign door_open_led   = door_open;    // leds[5] <- pb[0]
-    assign vacation_led    = vac_mode;     // leds[6] <- pb[3]
+    assign Vacation_led    = vac_mode;     // leds[6] <- pb[3]
 
     // to HVAC unit: run toward target, inhibited at-temp / test mode (pb[2]) / sensor open (pb[1]/pb[0])
-    assign hvac_run      = ~i1eqi2 & ~door_open & ~window_open & ~mc_testmode;
-    assign hvac_increase = i1gti2;  // count current_temp up   (target above current)
-    assign hvac_decrease = i1lti2;  // count current_temp down (target below current)
+    assign HVAC_run      = ~i1eqi2 & ~door_open & ~window_open & ~mc_testmode;
+    assign HVAC_increase = i1gti2;  // count current_temp up   (target above current)
+    assign HVAC_decrease = i1lti2;  // count current_temp down (target below current)
 endmodule
