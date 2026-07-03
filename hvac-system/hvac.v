@@ -1,7 +1,7 @@
 // HVAC temperature unit: 4-bit up/down counter emulating a furnace / AC.
 // Starts at mid-scale (0x7) and steps toward the target one count per HVAC
 // clock while run is active, saturating at 0x0 and 0xF.
-// hvac_sim picks the counter clock: 0 = slow ~2 Hz (board), 1 = 50 MHz (sim).
+// hvac_sim picks the counter clock: 0 = slow board clock, 1 = 50 MHz (sim).
 module hvac #(
     parameter hvac_sim = 1'b0
 ) (
@@ -10,10 +10,11 @@ module hvac #(
 );
     wire        clk_2hz;
     reg         hvac_clock;
-    reg  [3:0]  cnt = 4'b0111;      // temperature, initialised to mid-range
+    reg  [3:0]  cnt = 4'b0111;      // temperature counter, initialised to mid-range
     reg  [23:0] clk_divider = 24'd0;
 
-    // Divide 50 MHz down to ~2 Hz (bit 23 toggles at ~3 Hz)
+    // Free-running divider; clk_2hz = bit 23 = 50 MHz / 2^24, about 3 Hz
+    // (the manual nominally calls it a 2 Hz clock).
     always @(posedge clk)
         clk_divider <= clk_divider + 1'b1;
 

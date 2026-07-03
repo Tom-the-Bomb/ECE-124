@@ -1,6 +1,6 @@
 // Energy Monitor Control: drives the HVAC unit and the indicator LEDs from the
 // comparator flags and the sensor/mode buttons.
-// Comparator (Compx4) compares mux_temp (A) vs current_temp (B):
+// Comparator (comp4x) compares mux_temp (A) vs current_temp (B):
 //   i1gti2 = mux>current,  i1eqi2 = mux==current,  i1lti2 = mux<current
 module Energy_Monitor_Control (
     input  door_open, window_open, mc_testmode, vac_mode,
@@ -21,7 +21,9 @@ module Energy_Monitor_Control (
     assign door_open_led   = door_open;    // leds[5] <- pb[0]
     assign Vacation_led    = vac_mode;     // leds[6] <- pb[3]
 
-    // to HVAC unit: run toward target, inhibited at-temp / test mode (pb[2]) / sensor open (pb[1]/pb[0])
+    // these outputs are inputs (run, increase, decrease) to `hvac.v` (not LEDs).
+    // Run only while off-target, and never while
+    // test mode (pb[2]), door (pb[0]), or window (pb[1]) is on.
     assign HVAC_run      = ~i1eqi2 & ~door_open & ~window_open & ~mc_testmode;
     assign HVAC_increase = i1gti2;  // count current_temp up   (target above current)
     assign HVAC_decrease = i1lti2;  // count current_temp down (target below current)

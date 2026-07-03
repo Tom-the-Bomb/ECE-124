@@ -9,6 +9,7 @@ module comp4x (
 );
     wire [3:0] altb, aeqb, agtb;   // per-bit results, indexed 3..0
 
+    // MSB
     Compx1 u3 (
         .A     (hex_A[3]),
         .B     (hex_B[3]),
@@ -33,6 +34,7 @@ module comp4x (
         .A_gt_B(agtb[1])
     );
 
+    // LSB
     Compx1 u0 (
         .A     (hex_A[0]),
         .B     (hex_B[0]),
@@ -41,16 +43,18 @@ module comp4x (
         .A_gt_B(agtb[0])
     );
 
+    // only one of [A_lt_B, A_eq_B, A_gt_B] can be 1 at a time
+
     // Highest differing bit decides the result; upper bits must be equal first.
-    assign A_lt_B = altb[3]
-                  | (aeqb[3] & altb[2])
-                  | (aeqb[3] & aeqb[2] & altb[1])
-                  | (aeqb[3] & aeqb[2] & aeqb[1] & altb[0]);
+    assign A_lt_B = altb[3] // MSB differs, A<B
+                  | (aeqb[3] & altb[2]) // MSB equal, next bit differs, A<B
+                  | (aeqb[3] & aeqb[2] & altb[1]) // MSB equal, next bit equal, next bit differs, A<B
+                  | (aeqb[3] & aeqb[2] & aeqb[1] & altb[0]); // all upper bits equal, LSB differs, A<B
 
-    assign A_eq_B = aeqb[3] & aeqb[2] & aeqb[1] & aeqb[0];
+    assign A_eq_B = aeqb[3] & aeqb[2] & aeqb[1] & aeqb[0]; // all bits equal, A==B
 
-    assign A_gt_B = agtb[3]
-                  | (aeqb[3] & agtb[2])
-                  | (aeqb[3] & aeqb[2] & agtb[1])
-                  | (aeqb[3] & aeqb[2] & aeqb[1] & agtb[0]);
+    assign A_gt_B = agtb[3] // MSB differs, A>B
+                  | (aeqb[3] & agtb[2]) // MSB equal, next bit differs, A>B
+                  | (aeqb[3] & aeqb[2] & agtb[1]) // MSB equal, next bit equal, next bit differs, A>B
+                  | (aeqb[3] & aeqb[2] & aeqb[1] & agtb[0]); // all upper bits equal, LSB differs, A>B
 endmodule
