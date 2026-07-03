@@ -1,21 +1,28 @@
+// Energy Monitor Control: drives the HVAC unit and the indicator LEDs from the
+// comparator flags and the sensor/mode buttons.
+// Comparator (Compx4) compares mux_temp (A) vs current_temp (B):
+//   i1gti2 = mux>current,  i1eqi2 = mux==current,  i1lti2 = mux<current
 module Energy_Monitor_Control (
-   input door_open, window_open, mc_testmode, vac_mode,
-   input i1eqi2,i1gti2,i1lti2,
+    input  door_open, window_open, mc_testmode, vac_mode,
+    input  i1eqi2, i1gti2, i1lti2,
 
-	output blower_on, ac_on, furnace_on, at_temp,
-	output HVAC_run, HVAC_increase, HVAC_decrease,
-	output vacation_led, door_open_led, window_open_led
+    output blower_on, ac_on, furnace_on, at_temp,
+    output hvac_run, hvac_increase, hvac_decrease,
+    output vacation_led, door_open_led, window_open_led
 );
-	assign ac_on = i1lti2;
-	assign furnace_on = i1gti2;
-	assign at_temp = i1eqi2;
-	assign vacation_led = vac_mode;
-	assign door_open_led = door_open;
-	assign window_open_led = window_open;
+    assign furnace_on = i1gti2;  // leds[0], target above current -> heating
+    assign at_temp    = i1eqi2;  // leds[1], target == current
+    assign ac_on      = i1lti2;  // leds[2], target below current -> cooling
 
-	assign HVAC_run = ~i1eqi2 & ~door_open & ~window_open & ~mc_testmode;
-	assign HVAC_increase = i1gti2;
-	assign HVAC_decrease = i1lti2;
-	assign blower_on = ~i1eqi2 & ~mc_testmode & ~door_open & ~window_open;
+    // leds[3], blower runs while off-target, unless testing (pb[2]) or sensor open (pb[1]/pb[0])
+    assign blower_on = ~i1eqi2 & ~mc_testmode & ~door_open & ~window_open;
 
+    assign window_open_led = window_open;  // leds[4] <- pb[1]
+    assign door_open_led   = door_open;    // leds[5] <- pb[0]
+    assign vacation_led    = vac_mode;     // leds[6] <- pb[3]
+
+    // to HVAC unit: run toward target, inhibited at-temp / test mode (pb[2]) / sensor open (pb[1]/pb[0])
+    assign hvac_run      = ~i1eqi2 & ~door_open & ~window_open & ~mc_testmode;
+    assign hvac_increase = i1gti2;  // count current_temp up   (target above current)
+    assign hvac_decrease = i1lti2;  // count current_temp down (target below current)
 endmodule
