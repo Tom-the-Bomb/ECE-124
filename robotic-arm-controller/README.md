@@ -31,10 +31,10 @@ Each button is press-hold-release: the press starts the request, and the release
 
 ## Locks & edge cases
 
-- **Extender** works only while the arm is stopped — a press during motion is ignored.
-- **Grappler** works only when the extender is fully extended (`1111`) — ignored otherwise.
+- **Extender** works only while the arm is stopped (i.e. a press during motion is ignored.)
+- **Grappler** works only when the extender is fully extended (`1111`), ignored otherwise.
 - **Motion while the extender is out → fault** (`leds[0]`): no move, latched until the extender is fully retracted _and_ the button is released.
-- Target is captured on **press** and **locked once moving** — changing switches mid-move does nothing.
+- Target is captured on **press** and **locked once moving** (changing switches mid-move does nothing).
 - Axes stop **independently**; asking to move to the current position does nothing.
 - **One button at a time**; hold ~1 s so the press overlaps a clock tick.
 - **Reset** (`pb_n[3]`) returns everything to its start state.
