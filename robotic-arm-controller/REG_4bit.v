@@ -6,7 +6,7 @@ module REG_4bit (
 	output reg  [3:0] target_reg
 );
 
-	// Reset if needed, increment or decrement if counter is not saturated
+	// synchronous load: reset clears the register, load captures data
 	always @(posedge clk) begin
 		if (reset)
 			target_reg <= 4'b0000;

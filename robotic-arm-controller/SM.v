@@ -1,8 +1,10 @@
 // X/Y Motion Controller: Moore state machine
+// I/O pins: motion = pb_n[2], reset = pb_n[3]; X/Y target = sw[7:4]/sw[3:0];
+//           X/Y position -> 7-seg DIGIT1/DIGIT2; posc_err -> leds[0]
 module SM (
 	input      clock,             // global 50 MHz clock
-	input      reset,             // reset everything
-	input      sm_clken,          // state machine clock enable (1 tick per 400 ms)
+	input      reset,             // synchronous reset (pb_n[3])
+	input      sm_clken,          // state machine clock enable (one global_clken tick)
 	input      motion,            // synchronized MOTION button (pb_n[2])
 	input      extended,          // from SM1: 1 when extender not fully retracted
 	input      x_eq,              // X position == captured target (from Compx4)
@@ -11,13 +13,13 @@ module SM (
 	input      y_eq,              // Y position == captured target (from Compx4)
 	input      y_lt,              // Y position <  captured target
 	input      y_gt,              // Y position >  captured target (unused)
-	output reg capture_enable,    // load pulse for the X/Y target registers
+	output reg capture_enable,    // load pulse for the X/Y target registers (sw[7:4], sw[3:0])
 	output reg x_cnt_en,          // X counter enable
 	output reg x_cnt_up1_dwn0,    // X counter direction: 1 = up, 0 = down
 	output reg y_cnt_en,          // Y counter enable
 	output reg y_cnt_up1_dwn0,    // Y counter direction: 1 = up, 0 = down
 	output reg extender_enbl,     // to SM1: 1 when arm at rest (extender allowed)
-	output reg posc_err           // System Fault Error: motion requested while extended -> leds[0]
+	output reg posc_err           // System Fault Error: motion while extended -> leds[0]
 );
 
 	parameter AT_REST = 2'b00, CAPTURE = 2'b01, MOVING = 2'b10, FAULT = 2'b11;

@@ -1,11 +1,12 @@
 // Extender Controller: Moore state machine
+// I/O pins: extender = pb_n[1], reset = pb_n[3]; extender position -> leds[5:2]
 module SM1 (
 	input      clock,              // global 50 MHz clock
-	input      reset,              // reset everything
-	input      sm_clken,           // state machine clock enable (1 tick per 400 ms)
+	input      reset,              // synchronous reset (pb_n[3])
+	input      sm_clken,           // state machine clock enable (one global_clken tick)
 	input      extender_enbl,      // from SM: 1 when arm at rest (extender allowed)
 	input      extender,           // synchronized EXTENDER button (pb_n[1])
-	input      [3:0] extender_pos, // current position from Bidir_shift_reg
+	input      [3:0] extender_pos, // current position from Bidir_shift_reg (-> leds[5:2])
 	output reg extender_in_motion, // shift enable to Bidir_shift_reg
 	output reg extender_dir,       // 1 = extend, 0 = retract
 	output reg extended,           // to SM: 1 whenever not fully retracted

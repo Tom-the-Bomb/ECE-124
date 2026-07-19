@@ -1,9 +1,10 @@
 // Grappler Controller: Moore state machine
+// I/O pins: grappler = pb_n[0], reset = pb_n[3]; grappler_on -> leds[1]
 module SM2 (
 	input      clock,            // global 50 MHz clock
-	input      reset,            // reset everything
-	input      sm_clken,         // state machine clock enable (1 tick per 400 ms)
-	input      grappler_enbl,    // from SM1: 1 when extender fully extended, 0 otherwise
+	input      reset,            // synchronous reset (pb_n[3])
+	input      sm_clken,         // state machine clock enable (one global_clken tick)
+	input      grappler_enbl,    // from SM1: 1 only when extender fully extended
 	input      grappler,         // synchronized GRAPPLER button (pb_n[0])
 	output reg grappler_on       // 1 = closed, 0 = open -> leds[1]
 );

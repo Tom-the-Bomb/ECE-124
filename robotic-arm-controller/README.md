@@ -22,18 +22,18 @@ Each button is press-hold-release: the press starts the request, and the release
 
 - `DIGIT1` = X position, `DIGIT2` = Y position.
 
-| LED                       | Shows                                               |
-| ------------------------- | --------------------------------------------------- |
-| `leds[0]` posc_err        | fault: motion requested while the extender is out   |
-| `leds[1]` grappler_on     | 1 = closed, 0 = open                                |
-| `leds[5:2]` extender      | position: `0000` retracted -> `1111` fully extended |
-| `leds[7:6]`               | spare / diagnostics                                 |
+| LED                   | Shows                                               |
+| --------------------- | --------------------------------------------------- |
+| `leds[0]` posc_err    | fault: motion requested while the extender is out   |
+| `leds[1]` grappler_on | 1 = closed, 0 = open                                |
+| `leds[5:2]` extender  | position: `0000` retracted -> `1111` fully extended |
+| `leds[7:6]`           | spare / diagnostics                                 |
 
 ## Locks & edge cases
 
 - **Extender** works only while the arm is stopped — a press during motion is ignored.
 - **Grappler** works only when the extender is fully extended (`1111`) — ignored otherwise.
-- **Motion while the extender is out → fault** (`leds[0]`): no move, latched until the extender is fully retracted *and* the button is released.
+- **Motion while the extender is out → fault** (`leds[0]`): no move, latched until the extender is fully retracted _and_ the button is released.
 - Target is captured on **press** and **locked once moving** — changing switches mid-move does nothing.
 - Axes stop **independently**; asking to move to the current position does nothing.
 - **One button at a time**; hold ~1 s so the press overlaps a clock tick.
@@ -47,15 +47,11 @@ until `Compx4` says each axis matches. Axes stop independently, so whichever
 arrives first stays put while the other keeps going.
 
 `SM1` shifts `Bidir_shift_reg` one step per clock enable to extend (`0000` ->
-`1000` -> `1100` -> `1110` -> `1111`) or retract back to `0000`.
-
-The interlocks:
-
-- `SM` only allows the extender (`extender_enbl`) while the arm is at rest.
-- `SM1` only allows the grappler (`grappler_enbl`) while fully extended.
-- `SM1` reports `extended` whenever the position isn't `0000`. Asking for motion
-  then raises `posc_err` and blocks the move; it stays latched until the
-  extender is fully retracted.
+`1000` -> `1100` -> `1110` -> `1111`) or retract back to `0000`. `SM2` toggles the
+grappler open/closed. The three machines gate each other: `SM` enables the
+extender (`extender_enbl`) only at rest, `SM1` enables the grappler
+(`grappler_enbl`) only at full extension, and `SM1`'s `extended` flag makes `SM`
+fault (`posc_err`) if motion is requested while the extender is out.
 
 Every register, counter and state machine runs on `global_clk` and steps on the
 one-cycle `global_clken` pulse from `clocken_generator`.
