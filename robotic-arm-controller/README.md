@@ -22,12 +22,22 @@ Each button is press-hold-release: the press starts the request, and the release
 
 - `DIGIT1` = X position, `DIGIT2` = Y position.
 
-| LED                   | Shows                                               |
-| --------------------- | --------------------------------------------------- |
-| `leds[0]` posc_err    | fault: motion requested while the extender is out   |
-| `leds[1]` grappler_on | 1 = closed, 0 = open                                |
-| `leds[5:2]` extender  | position: `0000` retracted -> `1111` fully extended |
-| `leds[7:6]`           | spare / diagnostics                                 |
+| LED                       | Shows                                               |
+| ------------------------- | --------------------------------------------------- |
+| `leds[0]` posc_err        | fault: motion requested while the extender is out   |
+| `leds[1]` grappler_on     | 1 = closed, 0 = open                                |
+| `leds[5:2]` extender      | position: `0000` retracted -> `1111` fully extended |
+| `leds[7:6]`               | spare / diagnostics                                 |
+
+## Locks & edge cases
+
+- **Extender** works only while the arm is stopped — a press during motion is ignored.
+- **Grappler** works only when the extender is fully extended (`1111`) — ignored otherwise.
+- **Motion while the extender is out → fault** (`leds[0]`): no move, latched until the extender is fully retracted *and* the button is released.
+- Target is captured on **press** and **locked once moving** — changing switches mid-move does nothing.
+- Axes stop **independently**; asking to move to the current position does nothing.
+- **One button at a time**; hold ~1 s so the press overlaps a clock tick.
+- **Reset** (`pb_n[3]`) returns everything to its start state.
 
 ## How it works
 

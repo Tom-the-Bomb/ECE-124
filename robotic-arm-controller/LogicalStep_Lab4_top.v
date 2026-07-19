@@ -253,24 +253,24 @@ module LogicalStep_Lab4_top (
 
 	// outputs used for simulations only
 `ifdef SIM_FLAG
-	assign xreg          = x_capt_reg[3:0];
-	assign yreg          = y_capt_reg[3:0];
-	assign xPOS          = x_pos[3:0];
-	assign yPOS          = y_pos[3:0];
-	assign x_cnt_en_out  = x_cnt_en;
-	assign x_comp_gt_out = x_gt;
-	assign x_comp_lt_out = x_lt;
-	assign y_cnt_en_out  = y_cnt_en;
-	assign y_comp_gt_out = y_gt;
-	assign y_comp_lt_out = y_lt;
-	assign clock_out         = global_clk;
-	assign global_clken_out  = global_clken;
-	assign clken_out         = clken;
-	assign limit_out         = limit_reached;
-	assign motion_out        = motion;
-	assign extender_out      = extender;
-	assign grappler_out      = grappler;
-	assign extended_out      = extended;
+	assign xreg             = x_capt_reg[3:0];
+	assign yreg             = y_capt_reg[3:0];
+	assign xPOS             = x_pos[3:0];
+	assign yPOS             = y_pos[3:0];
+	assign x_cnt_en_out     = x_cnt_en;
+	assign x_comp_gt_out    = x_gt;
+	assign x_comp_lt_out    = x_lt;
+	assign y_cnt_en_out     = y_cnt_en;
+	assign y_comp_gt_out    = y_gt;
+	assign y_comp_lt_out    = y_lt;
+	assign clock_out        = global_clk;
+	assign global_clken_out = global_clken;
+	assign clken_out        = clken;
+	assign limit_out        = limit_reached;
+	assign motion_out       = motion;
+	assign extender_out     = extender;
+	assign grappler_out     = grappler;
+	assign extended_out     = extended;
 `endif
 ////////////////////////////////////////////////////////////////////////////////////////////////
 

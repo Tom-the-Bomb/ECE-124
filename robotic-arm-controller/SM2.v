@@ -1,16 +1,18 @@
-// Grappler Controller -- Moore state machine
+// Grappler Controller: Moore state machine
 module SM2 (
-	input				clock, reset, sm_clken,
-	input				grappler_enbl,			// from SM1: high only when fully extended
-	input				grappler,				// synchronized GRAPPLER button (pb_n[0])
-	output reg			grappler_on				// 1 = closed, 0 = open -> leds[1]
+	input      clock,            // global 50 MHz clock
+	input      reset,            // reset everything
+	input      sm_clken,         // state machine clock enable (1 tick per 400 ms)
+	input      grappler_enbl,    // from SM1: 1 when extender fully extended, 0 otherwise
+	input      grappler,         // synchronized GRAPPLER button (pb_n[0])
+	output reg grappler_on       // 1 = closed, 0 = open -> leds[1]
 );
 
-	parameter OPEN = 2'b00, PRESS_CLOSE = 2'b01, CLOSED = 2'b10, PRESS_OPEN = 2'b11;
+	parameter OPEN = 2'b00, PRESS_TO_CLOSE = 2'b01, CLOSED = 2'b10, PRESS_TO_OPEN = 2'b11;
 
 	reg [1:0] current_state, next_state;
 
-	// Register section
+	// Register section: updates current state with next state (decided in transition section) on each clock tick
 	always @(posedge clock) begin
 		if (reset)
 			current_state <= OPEN;
@@ -18,22 +20,33 @@ module SM2 (
 			current_state <= next_state;
 	end
 
-	// Transition section -- press selects the action, release toggles the grappler
+	// Transition section: determines next state based on current state and inputs
+	// - press selects the action, release toggles the grappler
 	always @(*) begin
 		case (current_state)
-			OPEN:			next_state = (grappler_enbl && grappler) ? PRESS_CLOSE : OPEN;
-			PRESS_CLOSE:	next_state = grappler ? PRESS_CLOSE : CLOSED;
-			CLOSED:			next_state = (grappler_enbl && grappler) ? PRESS_OPEN : CLOSED;
-			PRESS_OPEN:		next_state = grappler ? PRESS_OPEN : OPEN;
-			default:		next_state = OPEN;
+			// grappler open, button not pressed; on press -> button held, on release -> stay open
+			// wait for press to close grappler
+			OPEN:           next_state = (grappler_enbl && grappler) ? PRESS_TO_CLOSE : OPEN;
+			// grappler open, button held; on release -> close grappler, on press -> stay in this state
+			// wait for release to commit closing of grappler
+			PRESS_TO_CLOSE: next_state = grappler ? PRESS_TO_CLOSE : CLOSED;
+			// grappler closed, button not pressed; on press -> button held, on release -> stay closed
+			// wait for press to open grappler
+			CLOSED:         next_state = (grappler_enbl && grappler) ? PRESS_TO_OPEN : CLOSED;
+			// grappler closed, button held; on release -> open grappler, on press -> stay in this state
+			// wait for release to commit opening of grappler
+			PRESS_TO_OPEN:  next_state = grappler ? PRESS_TO_OPEN : OPEN;
+			// undefined state: return to a known state and avoid inferred latches
+			default:        next_state = OPEN;
 		endcase
 	end
 
-	// Decoder section
+	// Decoder section: determines outputs based on current state
 	always @(*) begin
 		case (current_state)
-			CLOSED, PRESS_OPEN:	grappler_on = 1'b1;
-			default:			grappler_on = 1'b0;
+			// closed, or holding the button that will open it (not released yet) -> still closed
+			CLOSED, PRESS_TO_OPEN: grappler_on = 1'b1;
+			default:               grappler_on = 1'b0;
 		endcase
 	end
 

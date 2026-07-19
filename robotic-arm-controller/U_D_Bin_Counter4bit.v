@@ -2,7 +2,7 @@ module U_D_Bin_Counter4bit (
 	input  wire       clk,
 	input  wire       global_clken,
 	input  wire       count_en,
-	input  wire       count_up1_dwn0,
+	input  wire       count_up1_dwn0,  // 1 = count up, 0 = count down
 	input  wire       reset,
 	output reg  [3:0] count
 );
