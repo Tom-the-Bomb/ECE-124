@@ -13,12 +13,12 @@ module SM1 (
 	output reg grappler_enbl       // to SM2: 1 only when fully extended
 );
 
-	parameter RETRACTED        = 3'b000,
-	          PRESS_TO_EXTEND  = 3'b001,
-	          EXTENDING        = 3'b010,
-	          EXTENDED         = 3'b011,
-	          PRESS_TO_RETRACT = 3'b100,
-	          RETRACTING       = 3'b101;
+	localparam RETRACTED        = 3'b000,
+	           PRESS_TO_EXTEND  = 3'b001,
+	           EXTENDING        = 3'b010,
+	           EXTENDED         = 3'b011,
+	           PRESS_TO_RETRACT = 3'b100,
+	           RETRACTING       = 3'b101;
 
 	reg [2:0] current_state, next_state;
 
@@ -57,6 +57,7 @@ module SM1 (
 
 	// Decoder section: determines outputs based on current state (defaults first to avoid inferred latches)
 	always @(*) begin
+		// convention: outputs default to 0, then set per state (extended is derived from position)
 		extender_in_motion = 1'b0;
 		extender_dir       = 1'b0;
 		grappler_enbl      = 1'b0;

@@ -22,7 +22,7 @@ module SM (
 	output reg posc_err           // System Fault Error: motion while extended -> leds[0]
 );
 
-	parameter AT_REST = 2'b00, CAPTURE = 2'b01, MOVING = 2'b10, FAULT = 2'b11;
+	localparam AT_REST = 2'b00, CAPTURE = 2'b01, MOVING = 2'b10, FAULT = 2'b11;
 
 	reg [1:0] current_state, next_state;
 
@@ -46,9 +46,9 @@ module SM (
 			// target captured, button held; on release -> start moving, on hold -> stay
 			// wait for release to begin the move
 			CAPTURE: next_state = motion ? CAPTURE : MOVING;
-			// counting toward the target; done once both axes match
+			// counting toward the target; exits out of this state/done once both X/Y match
 			MOVING:  next_state = (x_eq && y_eq) ? AT_REST : MOVING;
-			// fault latched; clears only once fully retracted and the button is released
+			// fault latched; clears only once extender is fully retracted and the button is released
 			FAULT:   next_state = (!extended && !motion) ? AT_REST : FAULT;
 			// undefined state: return to a known state and avoid inferred latches
 			default: next_state = AT_REST;
@@ -57,11 +57,13 @@ module SM (
 
 	// Decoder section: determines outputs based on current state (defaults first to avoid inferred latches)
 	always @(*) begin
+		// convention: all outputs default to 0, then each state sets the ones it needs
 		capture_enable = 1'b0;
 		x_cnt_en       = 1'b0;
 		x_cnt_up1_dwn0 = 1'b0;
 		y_cnt_en       = 1'b0;
 		y_cnt_up1_dwn0 = 1'b0;
+		// extender disabled by default; enabled in every state except MOVING
 		extender_enbl  = 1'b0;
 		posc_err       = 1'b0;
 		case (current_state)
@@ -72,14 +74,14 @@ module SM (
 				capture_enable = 1'b1;
 				extender_enbl  = 1'b1;
 			end
-			// count each axis toward its target, stopping the instant it matches
+			// count each axis toward its target; each stops independently when it matches
 			MOVING: begin
 				x_cnt_en       = !x_eq;   // count until X reaches target
 				x_cnt_up1_dwn0 = x_lt;    // 1 (up) when below target, else 0 (down)
-				y_cnt_en       = !y_eq;
-				y_cnt_up1_dwn0 = y_lt;
+				y_cnt_en       = !y_eq;   // count until Y reaches target
+				y_cnt_up1_dwn0 = y_lt;    // 1 (up) when below target, else 0 (down)
 			end
-			// fault active; keep extender allowed so retracting can clear it
+			// fault active: keep extender allowed so retracting can clear it
 			FAULT: begin
 				posc_err      = 1'b1;
 				extender_enbl = 1'b1;

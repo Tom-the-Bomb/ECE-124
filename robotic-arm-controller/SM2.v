@@ -9,7 +9,7 @@ module SM2 (
 	output reg grappler_on       // 1 = closed, 0 = open -> leds[1]
 );
 
-	parameter OPEN = 2'b00, PRESS_TO_CLOSE = 2'b01, CLOSED = 2'b10, PRESS_TO_OPEN = 2'b11;
+	localparam OPEN = 2'b00, PRESS_TO_CLOSE = 2'b01, CLOSED = 2'b10, PRESS_TO_OPEN = 2'b11;
 
 	reg [1:0] current_state, next_state;
 
@@ -44,10 +44,12 @@ module SM2 (
 
 	// Decoder section: determines outputs based on current state
 	always @(*) begin
+		// convention: all outputs default to 0, then each state sets the ones it needs
+		grappler_on = 1'b0;
 		case (current_state)
 			// closed, or holding the button that will open it (not released yet) -> still closed
 			CLOSED, PRESS_TO_OPEN: grappler_on = 1'b1;
-			default:               grappler_on = 1'b0;
+			default: ;
 		endcase
 	end
 
